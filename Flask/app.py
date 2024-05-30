@@ -1,15 +1,28 @@
-from flask import Flask,Request
+from flask import Flask, request, jsonify
+from flask_mysqldb import MySQL
 
 #importamos la clase Flask desde el modulo flask
-from flask import Flask
 
-#creamos una instancia de la clase Flask, esta se convierte en la aplicación web
 app = Flask(__name__)
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD']  = ''
+app.config['MYSQL_DB'] = 'bdflask'
+mysql =MySQL(app)
+#creamos una instancia de la clase Flask, esta se convierte en la aplicación web
+
 
 #Ruta simple
-@app.route('/')
-def principal():
-    return 'Hola mundo Flask'
+@app.route('/PruebaConexion')
+def PruebaConexion():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("Select 1")
+        datos = cursor.fetchone()
+        return jsonify({'status:':'conexion exitosa','data':datos})
+    except Exception as ex:
+         return jsonify({'status:':'error conexion ','mensaje ':str(ex)})
+
 
 
 #Ruta doble 
@@ -26,9 +39,9 @@ def hi(nombre):
 #Definicion de metodos de trabajo
 @app.route('/formulario/', methods=['GET', 'POST'])
 def formulario():
-    if Request.method == 'GET':
+    if request.method == 'GET':
         return 'No es seguro mandar password por GET, no seas tibio'
-    elif Request.method == 'POST':
+    elif request.method == 'POST':
         return 'SI es seguro mandar password por POST'
     
 #Manejador de exepciones 
